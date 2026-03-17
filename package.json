@@ -1,0 +1,20 @@
+{
+  "name": "devmatch-backend",
+  "version": "1.0.0",
+  "description": "backend for DevMatch web-app",
+  "keywords": [
+    "express.js",
+    "node.js"
+  ],
+  "license": "ISC",
+  "author": "Adarsh Samal",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start":"node src/app.js",
+    "dev": "nodemon src/app.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
