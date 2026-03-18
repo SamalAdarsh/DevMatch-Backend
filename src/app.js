@@ -2,6 +2,30 @@ const express = require("express");
 
 const app = express();
 
+app.use("/user",(req,res)=>{
+ 
+    res.send("HAHAHAHAHA")
+
+})
+
+app.get("/user",(req,res)=>{
+ 
+    res.send({firstName:"Peaky", lastName: "Samal"})
+
+})
+
+app.post("/user",(req,res)=>{
+ 
+    res.send("Data Successfully saved to DB");
+
+})
+
+app.delete("/user",(req,res)=>{
+ 
+    res.send("Deleted Successfully");
+
+})
+
 // app.listen(7777);
 
 // console.log("Server successfully connected");
