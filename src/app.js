@@ -1,5 +1,7 @@
 const express = require("express");
 
+const {adminAuth} = require("./middlewares/auth")
+
 const app = express();
 
 // app.get(/.*fly$/,(req,res)=>{
@@ -37,23 +39,23 @@ const app = express();
 
 // )
 
-app.use("/", (req, res, next) => {
-  console.log("Handle/route");
-  // res.send("Response")
-  next();
-});
+// app.use("/", (req, res, next) => {
+//   console.log("Handle/route");
+//   // res.send("Response")
+//   next();
+// });
 
-app.get(
-  "/user",
-  (req, res, next) => {
-    console.log("Handle 1");
-    next();
-  },
-  (req, res, next) => {
-    console.log("Handle 2");
-    res.send("Response 2");
-  },
-);
+// app.get(
+//   "/user",
+//   (req, res, next) => {
+//     console.log("Handle 1");
+//     next();
+//   },
+//   (req, res, next) => {
+//     console.log("Handle 2");
+//     res.send("Response 2");
+//   },
+// );
 
 // app.get("/user",(req,res,next)=>{
 
@@ -67,6 +69,31 @@ app.get(
 //     res.send({firstName:"Peaky", lastName: "Blinders"})
 
 // })
+
+//MiddleWare Authentication
+
+app.get("/admin", adminAuth);
+
+app.get("/user", (req, res) => {
+  const token = "xyz";
+  const isAdminAuth = token === "xyz";
+
+  if (isAdminAuth) {
+    res.send("User Data");
+  } else {
+    res.status(401).send("Unauthorized Request");
+  }
+});
+
+app.get("/admin/getAllData", (req, res) => {
+  res.send("All Data Sent 2");
+});
+
+app.get("/admin/deleteUser", (req, res) => {
+  // console.log("Delete User");
+
+  res.send("Delete Sent");
+});
 
 app.listen(7777, () => {
   console.log("Server successfully connected");
