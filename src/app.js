@@ -1,6 +1,7 @@
 const express = require("express");
 const connectDB = require("./config/database");
 const User = require("./models/user");
+const { ReturnDocument } = require("mongodb");
 const app = express();
 
 app.use(express.json());
@@ -94,3 +95,66 @@ app.get("/user", async (req, res) => {
   }
 
 });
+
+
+//delete user
+app.delete("/user", async (req, res) => {
+  const userId = req.body.userId;
+
+    try {
+    const user = await User.findByIdAndDelete(userId); //{ _id : userId } = userId
+    // if (users.length === 0) {
+       if(!user){
+      res.status(404).send("User not found");
+    } else {
+      res.send("user deleted successfully");
+    }
+  } catch (err) {
+    res.status(400).send("Something went wrong");
+  }
+
+});
+
+
+app.patch("/user", async (req, res) => {
+  const userEmail = req.body.emailId;
+  const data = req.body;
+  console.log(data);
+
+    try {
+    
+    const user = await User.findOneAndUpdate( {emailId : userEmail},data,{returnDocument:"after"}); 
+    console.log(user);
+    // if (users.length === 0) {
+       if(!user){
+      res.status(404).send("User not found");
+    } else {
+      res.send("user updated successfully");
+    }
+  } catch (err) {
+    res.status(400).send("Something went wrong");
+  }
+
+});
+
+// //update user by Id
+// app.patch("/user", async (req, res) => {
+//   const userId = req.body.userId;
+//   const data = req.body;
+//   console.log(data);
+
+//     try {
+//     const user = await User.findByIdAndUpdate( {_id : userId},data,{returnDocument:"after"}); 
+//     console.log(user);
+//     // if (users.length === 0) {
+//        if(!user){
+//       res.status(404).send("User not found");
+//     } else {
+//       res.send("user updated successfully");
+//     }
+//   } catch (err) {
+//     res.status(400).send("Something went wrong");
+//   }
+
+// });
+
