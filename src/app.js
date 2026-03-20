@@ -1,6 +1,6 @@
 const express = require("express");
 
-const {adminAuth,userAuth} = require("./middlewares/auth")
+const { adminAuth, userAuth } = require("./middlewares/auth");
 
 const app = express();
 
@@ -72,21 +72,54 @@ const app = express();
 
 //MiddleWare Authentication
 
-app.get("/admin", adminAuth);
+// app.get("/admin", adminAuth);
 
-app.get("/user", userAuth, (req, res) => {
-res.send("User Data");
+// app.get("/user", userAuth, (req, res) => {
+// res.send("User Data");
+// });
+
+// app.get("/admin/getAllData", (req, res) => {
+//   res.send("All Data Sent 2");
+// });
+
+// app.get("/admin/deleteUser", (req, res) => {
+//   // console.log("Delete User");
+
+//   res.send("Delete Sent");
+
+// });
+
+//ERROR HANDLING
+
+app.use("/",(err,req,res,next)=>{
+
+    if(err){
+
+        res.status(500).send("Something went wrong 1");
+    }
+})
+
+
+app.get("/getData", (req, res) => {
+
+// try{
+   throw new Error("adsksfksf");
+  res.send("All Data Sent");
+// }
+
+// catch(err){
+//      res.status(500).send("Something went wrong in GET");
+// }
+ 
 });
 
-app.get("/admin/getAllData", (req, res) => {
-  res.send("All Data Sent 2");
-});
+app.use("/",(err,req,res,next)=>{
 
-app.get("/admin/deleteUser", (req, res) => {
-  // console.log("Delete User");
+    if(err){
 
-  res.send("Delete Sent");
-});
+        res.status(500).send("Something went wrong 2");
+    }
+})
 
 app.listen(7777, () => {
   console.log("Server successfully connected");
