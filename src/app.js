@@ -1,6 +1,6 @@
 const express = require("express");
 
-const {adminAuth} = require("./middlewares/auth")
+const {adminAuth,userAuth} = require("./middlewares/auth")
 
 const app = express();
 
@@ -74,15 +74,8 @@ const app = express();
 
 app.get("/admin", adminAuth);
 
-app.get("/user", (req, res) => {
-  const token = "xyz";
-  const isAdminAuth = token === "xyz";
-
-  if (isAdminAuth) {
-    res.send("User Data");
-  } else {
-    res.status(401).send("Unauthorized Request");
-  }
+app.get("/user", userAuth, (req, res) => {
+res.send("User Data");
 });
 
 app.get("/admin/getAllData", (req, res) => {

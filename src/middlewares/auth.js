@@ -11,7 +11,21 @@ const adminAuth = (req, res, next) => {
   }
 };
 
+const userAuth = (req, res, next) => {
+  console.log("Admin auth is getting checked 2");
+
+  const token = "xyz";
+  const isAdminAuth = token === "xyz";
+
+  if (!isAdminAuth) {
+    res.status(401).send("Unauthorized Request");
+  } else {
+    next();
+  }
+};
+
 
 module.exports = {
     adminAuth,
+    userAuth,
 }
