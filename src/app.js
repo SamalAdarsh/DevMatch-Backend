@@ -18,17 +18,16 @@ connectDB()
   });
 
 app.post("/signup", async (req, res) => {
+  // console.log(req.body);
 
-// console.log(req.body);
+  //   const user = new User({
+  //     firstName: "MS",
+  //     lastName: "Dhoni",
+  //     emailId: "ms@dhoni.com",
+  //     password: "Msd@777",
+  //   });
 
-//   const user = new User({
-//     firstName: "MS",
-//     lastName: "Dhoni",
-//     emailId: "ms@dhoni.com",
-//     password: "Msd@777",
-//   });
-
-const user = new User(req.body);
+  const user = new User(req.body);
 
   try {
     await user.save();
@@ -36,8 +35,62 @@ const user = new User(req.body);
   } catch (err) {
     res.status(400).send("Error in saving the user:" + err.message);
   }
-
 });
 
-//get by user
-app.get("")
+//get by userEmail
+app.get("/user", async (req, res) => {
+  const userEmail = req.body.emailId;
+
+    try {
+    const users = await User.findOne({ emailId: userEmail });
+    // if (users.length === 0) {
+       if(!users){
+      res.status(404).send("User not found");
+    } else {
+      res.send(users);
+    }
+  } catch (err) {
+    res.status(400).send("Something went wrong");
+  }
+
+//   try {
+//     const users = await User.find({ emailId: userEmail });
+//     if (users.length === 0) {
+//       //  if(!users){
+//       res.status(404).send("User not found");
+//     } else {
+//       res.send(users);
+//     }
+//   } catch (err) {
+//     res.status(400).send("Something went wrong");
+//   }
+});
+
+// get all user, /feed
+app.get("/feed", async (req, res) => {
+  try {
+    const users = await User.find({});
+
+    res.send(users);
+  } catch (err) {
+    res.status(400).send("Something went wrong");
+  }
+});
+
+//find by Id
+app.get("/user", async (req, res) => {
+  const userEmail = req.body.emailId;
+
+    try {
+    const users = await User.findOne({ emailId: userEmail });
+    // if (users.length === 0) {
+       if(!users){
+      res.status(404).send("User not found");
+    } else {
+      res.send(users);
+    }
+  } catch (err) {
+    res.status(400).send("Something went wrong");
+  }
+
+});
