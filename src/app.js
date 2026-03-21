@@ -117,13 +117,13 @@ app.delete("/user", async (req, res) => {
 
 
 app.patch("/user", async (req, res) => {
-  const userEmail = req.body.emailId;
+  const userId = req.body.userId;
   const data = req.body;
-  console.log(data);
+ 
 
     try {
-    
-    const user = await User.findOneAndUpdate( {emailId : userEmail},data,{returnDocument:"after"}); 
+    // const ALLOWED_UPDATES = [""];
+    const user = await User.findOneAndUpdate( {_id : userId},data,{returnDocument:"after", runValidators: true}); 
     console.log(user);
     // if (users.length === 0) {
        if(!user){
@@ -132,7 +132,7 @@ app.patch("/user", async (req, res) => {
       res.send("user updated successfully");
     }
   } catch (err) {
-    res.status(400).send("Something went wrong");
+    res.status(400).send("Something went wrong" + err.message);
   }
 
 });
