@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const validator = require("validator");
 
 const userSchema = new mongoose.Schema(
   {
@@ -7,11 +8,13 @@ const userSchema = new mongoose.Schema(
       required: true,
       minLength: 3,
       maxLength: 50,
+      trim: true
     },
 
     lastName: {
       type: String,
       maxLength: 50,
+      trim: true,
     },
 
     emailId: {
@@ -21,12 +24,27 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
       maxLength: 50,
+      validate(value){
+
+        if(!validator.isEmail(value)){
+
+            throw new Error("Invalid Email Entered" + value)
+        }
+      }
+   
     },
 
     password: {
       type: String,
       required: true,
       minLength: 10,
+        validate(value){
+
+        if(!validator.isStrongPassword(value)){
+
+            throw new Error("Invalid Password Entered" + value)
+        }
+      }
     },
 
     age: {
@@ -47,11 +65,20 @@ const userSchema = new mongoose.Schema(
       type: String,
       default:
         "https://www.kindpng.com/picc/m/24-248253_user-profile-default-image-png-clipart-png-download.png",
+
+      validate(value){
+
+        if(!validator.isURL(value)){
+
+            throw new Error("Invalid Email Entered" + value)
+        }
+      }
     },
 
     about: {
       type: String,
       default: "This is default about of the user",
+      trim: true,
     },
 
     skills: {
