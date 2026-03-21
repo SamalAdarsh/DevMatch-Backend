@@ -1,8 +1,12 @@
 const express = require("express");
 const connectDB = require("./config/database");
 const User = require("./models/user");
-const { ReturnDocument } = require("mongodb");
+const {validateSignUpData} = require("./utils/validate");
+const bcrypt =  require("bcrypt")
+
+
 const app = express();
+
 
 app.use(express.json());
 
@@ -19,18 +23,22 @@ connectDB()
   });
 
 app.post("/signup", async (req, res) => {
-  // console.log(req.body);
-
-  //   const user = new User({
-  //     firstName: "MS",
-  //     lastName: "Dhoni",
-  //     emailId: "ms@dhoni.com",
-  //     password: "Msd@777",
-  //   });
-
-  const user = new User(req.body);
+  // const user = new User(req.body);
 
   try {
+    validateSignUpData(req);
+    
+    const {password,firstName,lastName,emailId} = req.body;
+    const passwordHash = await bcrypt.hash(password,10);
+    console.log(passwordHash)
+    
+   const user = new User({
+    firstName,
+    lastName,
+    emailId,
+    password: passwordHash,
+   })
+
     await user.save();
     res.send("user added successfully");
   } catch (err) {
@@ -42,10 +50,10 @@ app.post("/signup", async (req, res) => {
 app.get("/user", async (req, res) => {
   const userEmail = req.body.emailId;
 
-    try {
+  try {
     const users = await User.findOne({ emailId: userEmail });
     // if (users.length === 0) {
-       if(!users){
+    if (!users) {
       res.status(404).send("User not found");
     } else {
       res.send(users);
@@ -54,17 +62,17 @@ app.get("/user", async (req, res) => {
     res.status(400).send("Something went wrong");
   }
 
-//   try {
-//     const users = await User.find({ emailId: userEmail });
-//     if (users.length === 0) {
-//       //  if(!users){
-//       res.status(404).send("User not found");
-//     } else {
-//       res.send(users);
-//     }
-//   } catch (err) {
-//     res.status(400).send("Something went wrong");
-//   }
+  //   try {
+  //     const users = await User.find({ emailId: userEmail });
+  //     if (users.length === 0) {
+  //       //  if(!users){
+  //       res.status(404).send("User not found");
+  //     } else {
+  //       res.send(users);
+  //     }
+  //   } catch (err) {
+  //     res.status(400).send("Something went wrong");
+  //   }
 });
 
 // get all user, /feed
@@ -82,10 +90,10 @@ app.get("/feed", async (req, res) => {
 app.get("/user", async (req, res) => {
   const userEmail = req.body.emailId;
 
-    try {
+  try {
     const users = await User.findOne({ emailId: userEmail });
     // if (users.length === 0) {
-       if(!users){
+    if (!users) {
       res.status(404).send("User not found");
     } else {
       res.send(users);
@@ -93,18 +101,16 @@ app.get("/user", async (req, res) => {
   } catch (err) {
     res.status(400).send("Something went wrong");
   }
-
 });
-
 
 //delete user
 app.delete("/user", async (req, res) => {
   const userId = req.body.userId;
 
-    try {
+  try {
     const user = await User.findByIdAndDelete(userId); //{ _id : userId } = userId
     // if (users.length === 0) {
-       if(!user){
+    if (!user) {
       res.status(404).send("User not found");
     } else {
       res.send("user deleted successfully");
@@ -112,34 +118,33 @@ app.delete("/user", async (req, res) => {
   } catch (err) {
     res.status(400).send("Something went wrong");
   }
-
 });
-
 
 app.patch("/user/:userId", async (req, res) => {
   const userId = req.params?.userId;
   const data = req.body;
- 
 
-    try {
-  const ALLOWED_UPDATES = ["age","gender","skills","photoURL","about"];  
+  try {
+    const ALLOWED_UPDATES = ["age", "gender", "skills", "photoURL", "about"];
 
-  const isUpdateAllowed = Object.keys(data).every((k)=> ALLOWED_UPDATES.includes(k));
+    const isUpdateAllowed = Object.keys(data).every((k) =>
+      ALLOWED_UPDATES.includes(k),
+    );
 
-  if(!isUpdateAllowed){
+    if (!isUpdateAllowed) {
+      throw new Error("Update not allowed");
+    }
 
-    throw new Error("Update not allowed");
-  }
-
-  if(data?.skills?.length > 10){
-  
-     throw new Error("Only max 10 skills allowed");
-
-  }
-    const user = await User.findOneAndUpdate( {_id : userId},data,{returnDocument:"after", runValidators: true}); 
+    if (data?.skills?.length > 10) {
+      throw new Error("Only max 10 skills allowed");
+    }
+    const user = await User.findOneAndUpdate({ _id: userId }, data, {
+      returnDocument: "after",
+      runValidators: true,
+    });
     console.log(user);
     // if (users.length === 0) {
-       if(!user){
+    if (!user) {
       res.status(404).send("User not found");
     } else {
       res.send("user updated successfully");
@@ -147,7 +152,6 @@ app.patch("/user/:userId", async (req, res) => {
   } catch (err) {
     res.status(400).send("Something went wrong" + err.message);
   }
-
 });
 
 // //update user by Id
@@ -157,7 +161,7 @@ app.patch("/user/:userId", async (req, res) => {
 //   console.log(data);
 
 //     try {
-//     const user = await User.findByIdAndUpdate( {_id : userId},data,{returnDocument:"after"}); 
+//     const user = await User.findByIdAndUpdate( {_id : userId},data,{returnDocument:"after"});
 //     console.log(user);
 //     // if (users.length === 0) {
 //        if(!user){
@@ -170,4 +174,3 @@ app.patch("/user/:userId", async (req, res) => {
 //   }
 
 // });
-
