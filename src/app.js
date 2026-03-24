@@ -1,14 +1,15 @@
 const express = require("express");
 const connectDB = require("./config/database");
 const User = require("./models/user");
-const {validateSignUpData} = require("./utils/validate");
-const bcrypt =  require("bcrypt")
-
+const { validateSignUpData } = require("./utils/validate");
+const bcrypt = require("bcrypt");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 
 const app = express();
 
-
 app.use(express.json());
+app.use(cookieParser());
 
 connectDB()
   .then(() => {
@@ -27,17 +28,17 @@ app.post("/signup", async (req, res) => {
 
   try {
     validateSignUpData(req);
-    
-    const {password,firstName,lastName,emailId} = req.body;
-    const passwordHash = await bcrypt.hash(password,10);
-    console.log(passwordHash)
-    
-   const user = new User({
-    firstName,
-    lastName,
-    emailId,
-    password: passwordHash,
-   })
+
+    const { password, firstName, lastName, emailId } = req.body;
+    const passwordHash = await bcrypt.hash(password, 10);
+    console.log(passwordHash);
+
+    const user = new User({
+      firstName,
+      lastName,
+      emailId,
+      password: passwordHash,
+    });
 
     await user.save();
     res.send("user added successfully");
@@ -47,30 +48,56 @@ app.post("/signup", async (req, res) => {
 });
 
 //login
-app.post("/login",async (req,res)=>{
+app.post("/login", async (req, res) => {
+  try {
+    const { emailId, password } = req.body;
 
+    const user = await User.findOne({ emailId: emailId });
 
-try {
-    
-  const {emailId, password} = req.body;
-  
-  const user = await User.findOne({emailId : emailId});
+    if (!user) throw new Error("Invalid Credentials");
 
-  if(!user) throw new Error("Invalid Credentials");
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
-  const isPasswordValid = await bcrypt.compare(password,user.password);
+    if (isPasswordValid) {
+      const token = await jwt.sign({ _id: user._id }, "Dev@Match$123");
+      console.log(token);
 
-  if(isPasswordValid)  res.send("Logged in Successfully");
-
-  else throw new Error("Invalid Credentials");
-   
+      res.cookie("token", token);
+      res.send("Logged in Successfully");
+    } else throw new Error("Invalid Credentials");
   } catch (err) {
     res.status(400).send("ERROR:" + err.message);
   }
+});
 
+app.get("/profile", async (req, res) => {
+  try {
+    const cookies = req.cookies;
 
+    const { token } = cookies;
 
-})
+    if(!token) throw new Error("Invalid Token");
+
+    const decodedMessage = await jwt.verify(token, "Dev@Match$123");
+    console.log(decodedMessage);
+
+    const { _id } = decodedMessage;
+    console.log("Logged in user is :" + _id);
+
+    const user = await User.findById(_id);
+    
+    if(!user) throw new Error("Login Again");
+   res.send(user);
+
+    // console.log(cookies);
+   
+  } catch (err) {
+
+     res.status(400).send("ERROR:" + err.message);
+
+  }
+});
+
 //get by userEmail
 app.get("/user", async (req, res) => {
   const userEmail = req.body.emailId;
