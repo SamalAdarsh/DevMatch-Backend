@@ -5,6 +5,7 @@ const { validateSignUpData } = require("./utils/validate");
 const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
+const {userAuth} = require("./middlewares/auth");
 
 const app = express();
 
@@ -59,10 +60,10 @@ app.post("/login", async (req, res) => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (isPasswordValid) {
-      const token = await jwt.sign({ _id: user._id }, "Dev@Match$123");
+      const token = await jwt.sign({ _id: user._id }, "Dev@Match$123",{expiresIn: "7d"});
       console.log(token);
 
-      res.cookie("token", token);
+      res.cookie("token", token, {expires: new Date(Date.now() + 8*3600000)});
       res.send("Logged in Successfully");
     } else throw new Error("Invalid Credentials");
   } catch (err) {
@@ -70,23 +71,23 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/profile", async (req, res) => {
+app.get("/profile",userAuth, async (req, res) => {
   try {
-    const cookies = req.cookies;
+    // const cookies = req.cookies;
 
-    const { token } = cookies;
+    // const { token } = cookies;
 
-    if(!token) throw new Error("Invalid Token");
+    // if(!token) throw new Error("Invalid Token");
 
-    const decodedMessage = await jwt.verify(token, "Dev@Match$123");
-    console.log(decodedMessage);
+    // const decodedMessage = await jwt.verify(token, "Dev@Match$123");
+    // console.log(decodedMessage);
 
-    const { _id } = decodedMessage;
-    console.log("Logged in user is :" + _id);
+    // const { _id } = decodedMessage;
+    // console.log("Logged in user is :" + _id);
 
-    const user = await User.findById(_id);
+    const user = req.user;
     
-    if(!user) throw new Error("Login Again");
+    if(!user) throw new Error("User does not exist");
    res.send(user);
 
     // console.log(cookies);
@@ -96,6 +97,15 @@ app.get("/profile", async (req, res) => {
      res.status(400).send("ERROR:" + err.message);
 
   }
+});
+
+app.post("/sendConnectRequest", userAuth ,async (req, res) => {
+
+  const user = req.user;
+  console.log("Connection Request Sent");
+
+  res.send(user.firstName + " sent a connect request");
+  
 });
 
 //get by userEmail
