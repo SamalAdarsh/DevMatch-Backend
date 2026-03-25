@@ -1,11 +1,9 @@
 const express = require("express");
 const connectDB = require("./config/database");
-const User = require("./models/user");
-const { validateSignUpData } = require("./utils/validate");
-const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
-const jwt = require("jsonwebtoken");
-const {userAuth} = require("./middlewares/auth");
+const authRouter = require("./routes/auth");
+const profileRouter = require("./routes/profile");
+const requestRouter = require("./routes/request");
 
 const app = express();
 
@@ -24,89 +22,17 @@ connectDB()
     console.error("DB connection failed");
   });
 
-app.post("/signup", async (req, res) => {
-  // const user = new User(req.body);
-
-  try {
-    validateSignUpData(req);
-
-    const { password, firstName, lastName, emailId } = req.body;
-    const passwordHash = await bcrypt.hash(password, 10);
-    console.log(passwordHash);
-
-    const user = new User({
-      firstName,
-      lastName,
-      emailId,
-      password: passwordHash,
-    });
-
-    await user.save();
-    res.send("user added successfully");
-  } catch (err) {
-    res.status(400).send("ERROR:" + err.message);
-  }
-});
-
+//signup
 //login
-app.post("/login", async (req, res) => {
-  try {
-    const { emailId, password } = req.body;
+app.use("/",authRouter);
 
-    const user = await User.findOne({ emailId: emailId });
 
-    if (!user) throw new Error("Invalid Credentials");
+//profile
+app.use("/",profileRouter);
 
-    const isPasswordValid = await user.validPassword(password);
 
-    if (isPasswordValid) {
-      const token = await user.getJWT();
-      console.log(token);
-
-      res.cookie("token", token, {expires: new Date(Date.now() + 8*3600000)});
-      res.send("Logged in Successfully");
-    } else throw new Error("Invalid Credentials");
-  } catch (err) {
-    res.status(400).send("ERROR:" + err.message);
-  }
-});
-
-app.get("/profile",userAuth, async (req, res) => {
-  try {
-    // const cookies = req.cookies;
-
-    // const { token } = cookies;
-
-    // if(!token) throw new Error("Invalid Token");
-
-    // const decodedMessage = await jwt.verify(token, "Dev@Match$123");
-    // console.log(decodedMessage);
-
-    // const { _id } = decodedMessage;
-    // console.log("Logged in user is :" + _id);
-
-    const user = req.user;
-    
-    if(!user) throw new Error("User does not exist");
-   res.send(user);
-
-    // console.log(cookies);
-   
-  } catch (err) {
-
-     res.status(400).send("ERROR:" + err.message);
-
-  }
-});
-
-app.post("/sendConnectRequest", userAuth ,async (req, res) => {
-
-  const user = req.user;
-  console.log("Connection Request Sent");
-
-  res.send(user.firstName + " sent a connect request");
-  
-});
+//connect
+app.use("/",requestRouter);
 
 //get by userEmail
 app.get("/user", async (req, res) => {
