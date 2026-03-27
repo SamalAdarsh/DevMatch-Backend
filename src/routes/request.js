@@ -65,15 +65,15 @@ requestRouter.post("/request/send/:status/:toUserId", userAuth ,async (req, res)
 
         const data = await connectionRequest.save();
 
-        // res.json({
-        //     message: req.user.firstName + "has" + status + toUserId.firstName,
-        //     data,
-        // })
-
-           res.json({
-            message: "Connection Sent Successfully",
+        res.json({
+            message: req.user.firstName + " has " + status + " " + toUser.firstName,
             data,
         })
+
+        //    res.json({
+        //     message: "Connection Sent Successfully",
+        //     data,
+        // })
     }
     catch(err){
 
@@ -82,6 +82,43 @@ requestRouter.post("/request/send/:status/:toUserId", userAuth ,async (req, res)
   
   
 });
+
+requestRouter.post("/request/review/:status/:requestId", userAuth, async (req,res)=>{
+
+    try{
+
+        const loggedInUser = req.user;
+        const {status,requestId} = req.params;
+
+        const allowedStatus = ["accepted","rejected"];
+
+        if(!allowedStatus.includes(status)) return res.status(400).json({message: "Invalid status type"});
+
+        const connectionRequest = await ConnectionRequest.findOne({
+            _id: requestId,
+             toUserId: loggedInUser._id,
+             status: "interested",
+        })
+
+        if(!connectionRequest) return res.status(404).json({message: "Connection not found"});
+
+        connectionRequest.status = status;
+
+        const data = await connectionRequest.save();
+
+        res.json({
+            message: "Connection has been " + status,
+            data,
+        })
+
+
+    }catch(err){
+
+         res.status(400).send("Error:" + err.message);
+    }
+})
+
+
 
 
 module.exports = requestRouter;
