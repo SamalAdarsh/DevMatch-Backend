@@ -4,6 +4,7 @@ const cookieParser = require("cookie-parser");
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/request");
+const userRouter = require("./routes/user");
 
 const app = express();
 
@@ -33,6 +34,9 @@ app.use("/",profileRouter);
 
 //connect
 app.use("/",requestRouter);
+
+//feed
+app.use("/", userRouter);
 
 //get by userEmail
 app.get("/user", async (req, res) => {
