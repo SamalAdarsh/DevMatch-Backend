@@ -55,18 +55,23 @@ requestRouter.post("/request/send/:status/:toUserId", userAuth ,async (req, res)
             status,
         })
 
-        //Corner Case: 4 (Cannot send request to yourself)
+        // Corner Case: 4 (Cannot send request to yourself)
 
-        // if(connectionRequest.fromUserId.equals(connectionRequest.toUserId)){
+        if(connectionRequest.fromUserId.equals(connectionRequest.toUserId)){
 
-        //     return res.status(400).send("Cannot send request to yourself");
+            return res.status(400).send("Cannot send request to yourself");
 
-        // }
+        }
 
         const data = await connectionRequest.save();
 
-        res.json({
-            message: "Connection Request Sent Successfully",
+        // res.json({
+        //     message: req.user.firstName + "has" + status + toUserId.firstName,
+        //     data,
+        // })
+
+           res.json({
+            message: "Connection Sent Successfully",
             data,
         })
     }

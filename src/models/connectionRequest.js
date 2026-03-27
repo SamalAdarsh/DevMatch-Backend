@@ -26,14 +26,14 @@ const connectionRequestSchema = new mongoose.Schema(
   },
 );
 
- //Corner Case: 4 (Cannot send request to yourself)
-connectionRequestSchema.pre("save", function (next) {
+
+connectionRequestSchema.pre("save", async function (next) {
   const connectionRequest = this;
 
   if (connectionRequest.fromUserId.equals(connectionRequest.toUserId)) {
     throw new Error("Cannot send request to yourself!!");
   }
-  next();
+//   next();
 });
 
 const ConnectionRequestModel = mongoose.model(
