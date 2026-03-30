@@ -32,7 +32,7 @@ const User = require("../models/user");
 const userAuth = async (req,res,next)=>{
 
   try{const {token} = req.cookies;
-  if(!token) throw new Error("Token is invalid !!!!!!");
+  if(!token) res.status(401).send("Please Login!");
 
   const decodedData = await jwt.verify(token,"Dev@Match$123");
 
