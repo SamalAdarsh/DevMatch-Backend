@@ -1,7 +1,5 @@
-
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
-
 
 // const adminAuth = (req, res, next) => {
 //   console.log("Admin auth is getting checked");
@@ -29,30 +27,27 @@ const User = require("../models/user");
 //   }
 // };
 
-const userAuth = async (req,res,next)=>{
+const userAuth = async (req, res, next) => {
+  try {
+    const { token } = req.cookies;
+    if (!token) {
+      return res.status(401).send("Please Login!");
+    }
 
-  try{const {token} = req.cookies;
-  if(!token) res.status(401).send("Please Login!");
+    const decodedData = await jwt.verify(token, "Dev@Match$123");
 
-  const decodedData = await jwt.verify(token,"Dev@Match$123");
+    const { _id } = decodedData;
 
-  const {_id} = decodedData;
+    const user = await User.findById(_id);
+    if (!user) throw new Error("User not found");
 
-  const user = await User.findById(_id);
-  if(!user) throw new Error("User not found");
-
-  req.user = user;
-  next();
-}
-
-catch(err){
-
-  res.status(400).send("Error: " + err.message);
-}
-
-}
-
+    req.user = user;
+    next();
+  } catch (err) {
+   return  res.status(400).send("Error: " + err.message);
+  }
+};
 
 module.exports = {
-    userAuth,
-}
+  userAuth,
+};

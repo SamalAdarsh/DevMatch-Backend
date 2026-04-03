@@ -139,7 +139,7 @@ app.patch("/user/:userId", async (req, res) => {
       returnDocument: "after",
       runValidators: true,
     });
-    console.log(user);
+    // console.log(user);
     // if (users.length === 0) {
     if (!user) {
       res.status(404).send("User not found");
