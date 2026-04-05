@@ -21,7 +21,7 @@ app.use(cors({
 connectDB()
   .then(() => {
     console.log("DB successfully connected");
-    app.listen(7777, () => {
+    app.listen(process.env.PORT, () => {
       console.log("Server successfully connected");
     });
   })
