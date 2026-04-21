@@ -9,6 +9,7 @@ const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
+const paymentRouter = require("./routes/payment")
 
 const app = express();
 
@@ -45,6 +46,9 @@ app.use("/",requestRouter);
 
 //feed
 app.use("/", userRouter);
+
+//payment
+app.use("/",paymentRouter)
 
 //get by userEmail
 app.get("/user", async (req, res) => {
