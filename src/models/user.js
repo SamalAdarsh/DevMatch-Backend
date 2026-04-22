@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       minLength: 3,
       maxLength: 50,
-      trim: true
+      trim: true,
     },
 
     lastName: {
@@ -26,27 +26,22 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
       maxLength: 50,
-      validate(value){
-
-        if(!validator.isEmail(value)){
-
-            throw new Error("Invalid Email Entered" + value)
+      validate(value) {
+        if (!validator.isEmail(value)) {
+          throw new Error("Invalid Email Entered" + value);
         }
-      }
-   
+      },
     },
 
     password: {
       type: String,
       required: true,
       minLength: 10,
-        validate(value){
-
-        if(!validator.isStrongPassword(value)){
-
-            throw new Error("Invalid Password Entered" + value)
+      validate(value) {
+        if (!validator.isStrongPassword(value)) {
+          throw new Error("Invalid Password Entered" + value);
         }
-      }
+      },
     },
 
     age: {
@@ -63,18 +58,24 @@ const userSchema = new mongoose.Schema(
       },
     },
 
+    isPremium: {
+      type: Boolean,
+      default: false,
+    },
+    membershipType: {
+      type: String,
+    },
+
     photoURL: {
       type: String,
       default:
         "https://www.kindpng.com/picc/m/24-248253_user-profile-default-image-png-clipart-png-download.png",
 
-      validate(value){
-
-        if(!validator.isURL(value)){
-
-            throw new Error("Invalid Email Entered" + value)
+      validate(value) {
+        if (!validator.isURL(value)) {
+          throw new Error("Invalid Email Entered" + value);
         }
-      }
+      },
     },
 
     about: {
@@ -92,27 +93,27 @@ const userSchema = new mongoose.Schema(
   },
 );
 
-userSchema.methods.getJWT = async function(){
+userSchema.methods.getJWT = async function () {
+  const user = this;
 
-    const user = this;
+  const token = await jwt.sign({ _id: user._id }, "Dev@Match$123", {
+    expiresIn: "7d",
+  });
 
-    const token = await jwt.sign({ _id: user._id }, "Dev@Match$123",{expiresIn: "7d"});
+  return token;
+};
 
-    return token;
-}
+userSchema.methods.validPassword = async function (passwordInputByUser) {
+  const user = this;
+  const passwordHash = user.password;
 
-userSchema.methods.validPassword = async function(passwordInputByUser){
+  const isPasswordValid = await bcrypt.compare(
+    passwordInputByUser,
+    passwordHash,
+  );
 
-    const user = this;
-    const passwordHash = user.password;
-
- const isPasswordValid = await bcrypt.compare(passwordInputByUser, passwordHash);
-
-
-    return isPasswordValid;
-}
-
- 
+  return isPasswordValid;
+};
 
 const User = mongoose.model("User", userSchema);
 
