@@ -49,7 +49,13 @@ paymentRouter.post("/payment/create", userAuth, async (req, res) => {
 });
 
 paymentRouter.post("/payment/webhook", async (req, res) => {
+
+
   try {
+
+    console.log("🔔 Webhook hit by Razorpay!"); 
+    console.log("Event Type:", req.body.event);
+
     const webhookSignature = req.get("X-Razorpay-Signature");
 
     const isWebhookValid = validateWebhookSignature(
@@ -82,9 +88,10 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
     // }
 
     // return success response to razorpay
-
+    console.log("✅ Webhook processed successfully for user:", payment.userId);
     return res.status(200).json({ msg: "Webhook received successfully" });
   } catch (err) {
+    console.error("❌ Webhook Error:", err.message);
     return res.status(500).json({ msg: err.message });
   }
 });
