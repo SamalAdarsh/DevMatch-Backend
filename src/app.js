@@ -5,11 +5,14 @@ const express = require("express");
 const connectDB = require("./config/database");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const http = require("http");
+
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
-const paymentRouter = require("./routes/payment")
+const paymentRouter = require("./routes/payment");
+const initializeSocket = require("./utils/socket");
 
 const app = express();
 
@@ -20,17 +23,6 @@ app.use(cors({
   credentials:true,
 }));
 
-connectDB()
-  .then(() => {
-    console.log("DB successfully connected");
-    app.listen(process.env.PORT, () => {
-      console.log("Server successfully connected");
-    });
-  })
-
-  .catch((err) => {
-    console.error("DB connection failed");
-  });
 
 //signup
 //login
@@ -49,6 +41,9 @@ app.use("/", userRouter);
 
 //payment
 app.use("/",paymentRouter)
+
+const server = http.createServer(app);
+initializeSocket(server);
 
 //get by userEmail
 app.get("/user", async (req, res) => {
@@ -178,3 +173,16 @@ app.patch("/user/:userId", async (req, res) => {
 //   }
 
 // });
+
+
+connectDB()
+  .then(() => {
+    console.log("DB successfully connected");
+    app.listen(process.env.PORT, () => {
+      console.log("Server successfully connected");
+    });
+  })
+
+  .catch((err) => {
+    console.error("DB connection failed");
+  });
