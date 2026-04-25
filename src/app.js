@@ -13,6 +13,8 @@ const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
 const paymentRouter = require("./routes/payment");
 const initializeSocket = require("./utils/socket");
+const chatRouter = require("./routes/chat");
+
 
 const app = express();
 
@@ -40,7 +42,10 @@ app.use("/",requestRouter);
 app.use("/", userRouter);
 
 //payment
-app.use("/",paymentRouter)
+app.use("/",paymentRouter);
+
+//chat
+app.use("/", chatRouter);
 
 const server = http.createServer(app);
 initializeSocket(server);
@@ -178,7 +183,7 @@ app.patch("/user/:userId", async (req, res) => {
 connectDB()
   .then(() => {
     console.log("DB successfully connected");
-    app.listen(process.env.PORT, () => {
+    server.listen(process.env.PORT, () => {
       console.log("Server successfully connected");
     });
   })
